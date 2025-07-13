@@ -3,7 +3,7 @@
 @section('title', 'Dashboard Dosen - Sipuma')
 
 @section('content')
-<div class="min-h-screen bg-orange-50">
+<div class="bg-orange-50">
     <div class="p-6 space-y-8">
         <!-- Header -->
         <div class="bg-white rounded-xl p-8 text-gray-900 shadow border border-orange-200 flex justify-between items-center">
@@ -59,39 +59,65 @@
             <div class="p-6">
                 @if($pendingPublications->count() > 0)
                     <div class="overflow-x-auto">
-                        <x-dashboard-table :head="'<tr><th>Mahasiswa</th><th>Judul</th><th>Jenis</th><th>Status Admin</th><th>Tanggal Submit</th><th>Aksi</th></tr>'">
-                            @foreach($pendingPublications as $publication)
-                            <tr class="even:bg-orange-50 odd:bg-white hover:bg-orange-100">
-                                <td>
-                                    <div class="font-medium">{{ $publication->student->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $publication->student->studentProfile->nim ?? 'NIM belum diisi' }}</div>
-                                </td>
-                                <td>
-                                    <div class="font-medium">{{ Str::limit($publication->title, 40) }}</div>
-                                    <div class="text-sm text-gray-500">{{ Str::limit($publication->abstract, 60) }}</div>
-                                </td>
-                                <td>
-                                    <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name }}</span>
-                                </td>
-                                <td>
-                                    @if($publication->admin_status === 'pending')
-                                        <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu Admin</span>
-                                    @elseif($publication->admin_status === 'approved')
-                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui Admin</span>
-                                    @else
-                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak Admin</span>
-                                    @endif
-                                </td>
-                                <td>{{ $publication->submission_date->format('d/m/Y') }}</td>
-                                <td>
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('publications.show', $publication) }}" class="text-orange-600 hover:underline" title="Lihat"><i class="fas fa-eye"></i></a>
-                                        <a href="{{ route('publications.review', $publication) }}" class="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 flex items-center"><i class="fas fa-edit mr-1"></i>Review</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </x-dashboard-table>
+                        <table class="min-w-full bg-white border border-orange-200 rounded-lg">
+                            <thead class="bg-orange-500 text-white">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Mahasiswa</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Judul</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Jenis</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status Admin</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status Dosen</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tanggal Submit</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($pendingPublications as $publication)
+                                <tr class="even:bg-orange-50 odd:bg-white hover:bg-orange-100">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="font-medium">{{ $publication->student->name ?? 'N/A' }}</div>
+                                        <div class="text-sm text-gray-500">{{ $publication->student->studentProfile->nim ?? 'NIM belum diisi' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="font-medium">{{ Str::limit($publication->title, 40) }}</div>
+                                        <div class="text-sm text-gray-500">{{ Str::limit($publication->abstract ?? '', 60) }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name ?? 'N/A' }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($publication->admin_status === 'pending')
+                                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu Admin</span>
+                                        @elseif($publication->admin_status === 'approved')
+                                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui Admin</span>
+                                        @elseif($publication->admin_status === 'rejected')
+                                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak Admin</span>
+                                        @else
+                                            <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($publication->dosen_status === 'pending')
+                                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu</span>
+                                        @elseif($publication->dosen_status === 'approved')
+                                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui</span>
+                                        @elseif($publication->dosen_status === 'rejected')
+                                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak</span>
+                                        @else
+                                            <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $publication->submission_date ? $publication->submission_date->format('d/m/Y') : 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('publications.show', $publication) }}" class="text-orange-600 hover:underline" title="Lihat"><i class="fas fa-eye"></i></a>
+                                            <a href="{{ route('dashboard.dosen-review-detail', $publication->id) }}" class="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 flex items-center"><i class="fas fa-edit mr-1"></i>Review</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 @else
                     <div class="text-center py-8">
@@ -107,12 +133,17 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Students List -->
             <div class="bg-white rounded-xl shadow border border-orange-200 p-6">
-                <h2 class="text-orange-600 text-lg font-bold flex items-center mb-4">
-                    <i class="fas fa-user-graduate mr-2"></i>
-                    Mahasiswa Bimbingan
-                </h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-orange-600 text-lg font-bold flex items-center">
+                        <i class="fas fa-user-graduate mr-2"></i>
+                        Mahasiswa Bimbingan
+                    </h2>
+                    <a href="{{ route('dashboard.manage-students') }}" class="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                        Lihat Semua
+                    </a>
+                </div>
                 <div class="space-y-3">
-                    @forelse($students as $student)
+                    @forelse($students->take(3) as $student)
                     <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                         <div class="flex-1">
                             <h3 class="font-semibold">{{ $student->user->name }}</h3>
@@ -129,6 +160,16 @@
                         <p>Belum ada mahasiswa bimbingan</p>
                     </div>
                     @endforelse
+                    
+                    @if($students->count() > 3)
+                    <div class="text-center py-3">
+                        <span class="text-sm text-gray-500">+{{ $students->count() - 3 }} mahasiswa lainnya</span>
+                        <br>
+                        <a href="{{ route('dashboard.manage-students') }}" class="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                            Lihat Semua Mahasiswa
+                        </a>
+                    </div>
+                    @endif
                 </div>
             </div>
             <!-- Recent Reviews -->

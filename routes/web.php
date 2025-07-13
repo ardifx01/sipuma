@@ -20,8 +20,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Publication routes for students - using Spatie middleware
-    Route::middleware('permission:view-publications')->group(function () {
+    // Publication routes for students - using auth middleware only for now
+    Route::middleware('auth')->group(function () {
         Route::resource('publications', PublicationController::class);
     });
     // Route download publikasi di luar middleware agar admin bisa akses
@@ -94,5 +94,27 @@ Route::get('/test-review-no-role', function() {
 Route::get('/test-permission-view-publications', function() {
     return 'Permission view-publications middleware working! User: ' . Auth::user()->name;
 })->middleware(['auth', 'permission:view-publications']);
+
+// Test route untuk debugging permission tanpa middleware
+Route::get('/test-permission-check', function() {
+    $user = Auth::user();
+    return [
+        'user' => $user->name,
+        'roles' => $user->roles->pluck('name'),
+        'permissions' => $user->getAllPermissions()->pluck('name'),
+        'has_view_publications' => $user->hasPermissionTo('view publications'),
+        'has_create_publications' => $user->hasPermissionTo('create publications'),
+    ];
+})->middleware(['auth']);
+
+// Test route untuk debugging role middleware
+Route::get('/test-role-mahasiswa', function() {
+    return 'Role mahasiswa middleware working! User: ' . Auth::user()->name;
+})->middleware(['auth', 'role:mahasiswa']);
+
+// Test route untuk debugging role middleware dengan multiple roles
+Route::get('/test-role-mahasiswa-admin', function() {
+    return 'Role mahasiswa,admin middleware working! User: ' . Auth::user()->name;
+})->middleware(['auth', 'role:mahasiswa,admin']);
 
 require __DIR__.'/auth.php';

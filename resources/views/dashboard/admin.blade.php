@@ -3,7 +3,7 @@
 @section('title', 'Dashboard Admin - Sipuma')
 
 @section('content')
-<div class="min-h-screen bg-orange-50">
+<div class="bg-orange-50">
     <div class="p-6 space-y-8">
         <!-- Header sederhana -->
         <div class="bg-white rounded-xl p-8 text-gray-900 shadow border border-orange-200 flex justify-between items-center">
@@ -56,6 +56,27 @@
                                     <p class="text-xs text-gray-600">
                                         <i class="fas fa-tag mr-1"></i>{{ $publication->publicationType->name }}
                                     </p>
+                                    <!-- Status Review Dosen -->
+                                    <div class="mt-2 flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">Dosen:</span>
+                                        @if($publication->dosen_status === 'pending')
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                <i class="fas fa-clock mr-1"></i>Menunggu Review
+                                            </span>
+                                        @elseif($publication->dosen_status === 'approved')
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                <i class="fas fa-check mr-1"></i>Disetujui Dosen
+                                            </span>
+                                        @elseif($publication->dosen_status === 'rejected')
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                                <i class="fas fa-times mr-1"></i>Ditolak Dosen
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                                <i class="fas fa-minus mr-1"></i>Belum Review
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="ml-4">
                                     @if($publication->admin_status === 'pending')

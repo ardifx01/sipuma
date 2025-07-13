@@ -48,10 +48,18 @@ class PublicationController extends Controller
      */
     public function store(Request $request)
     {
+        // Debug: Log request data
+        \Log::info('Publication store method called', [
+            'request_data' => $request->all(),
+            'files' => $request->allFiles(),
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email ?? 'no email'
+        ]);
+        
         $request->validate([
             'title' => 'required|string|max:255',
-            'abstract' => 'required|string',
-            'keywords' => 'required|string',
+            'abstract' => 'nullable|string|required_unless:publication_status,accepted',
+            'keywords' => 'nullable|string|required_unless:publication_status,accepted',
             'journal_name' => 'nullable|string|max:255',
             'journal_url' => 'nullable|url|max:500',
             'indexing' => 'nullable|string|max:255',
@@ -65,10 +73,10 @@ class PublicationController extends Controller
             'sumber_artikel' => 'required|in:Skripsi,Magang,Riset',
             'tipe_publikasi' => 'required|array|min:1',
             'tipe_publikasi.*' => 'string|in:Skripsi,HKI,Paten Sederhana,Paten,Artikel,Buku',
-            'file_path' => 'required|file|mimes:pdf,doc,docx|max:10240', // Max 10MB
+            'file_path' => 'nullable|file|mimes:pdf,doc,docx|max:10240|required_unless:publication_status,accepted', // Max 10MB, not required for LoA
             
             // Publication status and LoA validation
-            'publication_status' => 'required|in:draft,submitted,accepted,published',
+            'publication_status' => 'required|in:accepted,published',
             'loa_date' => 'nullable|date',
             'loa_number' => 'nullable|string|max:255',
             'submission_date_to_publisher' => 'nullable|date',
@@ -77,7 +85,7 @@ class PublicationController extends Controller
             'publisher_name' => 'nullable|string|max:255',
             'journal_name_expected' => 'nullable|string|max:255',
             'publication_agreement_notes' => 'nullable|string',
-            'loa_file_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // Max 5MB
+            'loa_file_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120|required_if:publication_status,accepted', // Max 5MB, required for accepted status
             
             // HKI validation
             'hki_publication_date' => 'nullable|date|required_if:tipe_publikasi.*,HKI',
@@ -111,15 +119,39 @@ class PublicationController extends Controller
             }
         }
 
-        $file = $request->file('file_path');
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $filePath = $file->storeAs('publications', $fileName, 'public');
+        // Handle main file upload (not required for LoA)
+        $filePath = null;
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('publications', $fileName, 'public');
+            
+            // Debug file upload
+            \Log::info('File upload details:', [
+                'original_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'stored_path' => $filePath,
+                'full_path' => storage_path('app/public/' . $filePath),
+                'exists' => \Storage::disk('public')->exists($filePath)
+            ]);
+        }
+
+        // Get publication type ID based on tipe_publikasi
+        $publicationType = PublicationType::where('name', $request->tipe_publikasi[0])->first();
+        if (!$publicationType) {
+            // Create publication type if it doesn't exist
+            $publicationType = PublicationType::create([
+                'name' => $request->tipe_publikasi[0],
+                'description' => 'Tipe publikasi: ' . $request->tipe_publikasi[0]
+            ]);
+        }
 
         $data = [
             'student_id' => Auth::id(),
             'title' => $request->title,
-            'abstract' => $request->abstract,
-            'keywords' => $request->keywords,
+            'abstract' => $request->abstract ?? ($request->publication_status === 'accepted' ? 'LoA Document' : ''),
+            'keywords' => $request->keywords ?? ($request->publication_status === 'accepted' ? 'LoA' : ''),
             'journal_name' => $request->journal_name,
             'journal_url' => $request->journal_url,
             'indexing' => $request->indexing,
@@ -132,6 +164,7 @@ class PublicationController extends Controller
             'pages' => $request->pages,
             'sumber_artikel' => $request->sumber_artikel,
             'tipe_publikasi' => $request->tipe_publikasi,
+            'publication_type_id' => $publicationType->id,
             'file_path' => $filePath,
             'submission_date' => now(),
             'publication_status' => $request->publication_status,
@@ -151,6 +184,16 @@ class PublicationController extends Controller
             $loaFileName = time() . '_loa_' . $loaFile->getClientOriginalName();
             $loaFilePath = $loaFile->storeAs('publications/loa', $loaFileName, 'public');
             $data['loa_file_path'] = $loaFilePath;
+            
+            // Debug LoA file upload
+            \Log::info('LoA file upload details:', [
+                'original_name' => $loaFile->getClientOriginalName(),
+                'file_size' => $loaFile->getSize(),
+                'mime_type' => $loaFile->getMimeType(),
+                'stored_path' => $loaFilePath,
+                'full_path' => storage_path('app/public/' . $loaFilePath),
+                'exists' => \Storage::disk('public')->exists($loaFilePath)
+            ]);
         }
 
         // Handle HKI fields
@@ -163,6 +206,16 @@ class PublicationController extends Controller
                 $hkiFileName = time() . '_hki_' . $hkiFile->getClientOriginalName();
                 $hkiFilePath = $hkiFile->storeAs('publications/hki', $hkiFileName, 'public');
                 $data['hki_certificate'] = $hkiFilePath;
+                
+                // Debug HKI file upload
+                \Log::info('HKI file upload details:', [
+                    'original_name' => $hkiFile->getClientOriginalName(),
+                    'file_size' => $hkiFile->getSize(),
+                    'mime_type' => $hkiFile->getMimeType(),
+                    'stored_path' => $hkiFilePath,
+                    'full_path' => storage_path('app/public/' . $hkiFilePath),
+                    'exists' => \Storage::disk('public')->exists($hkiFilePath)
+                ]);
             }
         }
 
@@ -180,13 +233,44 @@ class PublicationController extends Controller
                 $bookFileName = time() . '_book_' . $bookFile->getClientOriginalName();
                 $bookFilePath = $bookFile->storeAs('publications/books', $bookFileName, 'public');
                 $data['book_pdf'] = $bookFilePath;
+                
+                // Debug Book file upload
+                \Log::info('Book file upload details:', [
+                    'original_name' => $bookFile->getClientOriginalName(),
+                    'file_size' => $bookFile->getSize(),
+                    'mime_type' => $bookFile->getMimeType(),
+                    'stored_path' => $bookFilePath,
+                    'full_path' => storage_path('app/public/' . $bookFilePath),
+                    'exists' => \Storage::disk('public')->exists($bookFilePath)
+                ]);
             }
         }
 
-        Publication::create($data);
-
-        return redirect()->route('publications.index')
-            ->with('success', 'Publikasi berhasil diupload!');
+        try {
+            $publication = Publication::create($data);
+            
+            // Debug database insertion
+            \Log::info('Publication created successfully:', [
+                'publication_id' => $publication->id,
+                'title' => $publication->title,
+                'file_path' => $publication->file_path,
+                'loa_file_path' => $publication->loa_file_path,
+                'hki_certificate' => $publication->hki_certificate,
+                'book_pdf' => $publication->book_pdf,
+                'student_id' => $publication->student_id,
+                'created_at' => $publication->created_at
+            ]);
+            
+            return redirect()->route('dashboard')
+                ->with('success', 'Publikasi berhasil diupload! File telah disimpan dan siap untuk direview.');
+        } catch (\Exception $e) {
+            // Log error untuk debugging
+            \Log::error('Publication upload failed: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'Gagal mengupload publikasi. Silakan coba lagi atau hubungi administrator.')
+                ->withInput();
+        }
     }
 
     /**
@@ -229,8 +313,8 @@ class PublicationController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
-            'abstract' => 'required|string',
-            'keywords' => 'required|string',
+            'abstract' => 'nullable|string|required_unless:publication_status,accepted',
+            'keywords' => 'nullable|string|required_unless:publication_status,accepted',
             'journal_name' => 'nullable|string|max:255',
             'journal_url' => 'nullable|url|max:500',
             'indexing' => 'nullable|string|max:255',
@@ -247,7 +331,7 @@ class PublicationController extends Controller
             'file' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             
             // Publication status and LoA validation
-            'publication_status' => 'required|in:draft,submitted,accepted,published',
+            'publication_status' => 'required|in:accepted,published',
             'loa_date' => 'nullable|date',
             'loa_number' => 'nullable|string|max:255',
             'submission_date_to_publisher' => 'nullable|date',
@@ -256,7 +340,7 @@ class PublicationController extends Controller
             'publisher_name' => 'nullable|string|max:255',
             'journal_name_expected' => 'nullable|string|max:255',
             'publication_agreement_notes' => 'nullable|string',
-            'loa_file_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // Max 5MB
+            'loa_file_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120|required_if:publication_status,accepted', // Max 5MB, required for accepted status
             
             // HKI validation
             'hki_publication_date' => 'nullable|date|required_if:tipe_publikasi.*,HKI',
@@ -290,10 +374,20 @@ class PublicationController extends Controller
             }
         }
 
+        // Get publication type ID based on tipe_publikasi
+        $publicationType = PublicationType::where('name', $request->tipe_publikasi[0])->first();
+        if (!$publicationType) {
+            // Create publication type if it doesn't exist
+            $publicationType = PublicationType::create([
+                'name' => $request->tipe_publikasi[0],
+                'description' => 'Tipe publikasi: ' . $request->tipe_publikasi[0]
+            ]);
+        }
+
         $data = [
             'title' => $request->title,
-            'abstract' => $request->abstract,
-            'keywords' => $request->keywords,
+            'abstract' => $request->abstract ?? ($request->publication_status === 'accepted' ? 'LoA Document' : ''),
+            'keywords' => $request->keywords ?? ($request->publication_status === 'accepted' ? 'LoA' : ''),
             'journal_name' => $request->journal_name,
             'journal_url' => $request->journal_url,
             'indexing' => $request->indexing,
@@ -306,6 +400,7 @@ class PublicationController extends Controller
             'pages' => $request->pages,
             'sumber_artikel' => $request->sumber_artikel,
             'tipe_publikasi' => $request->tipe_publikasi,
+            'publication_type_id' => $publicationType->id,
             'publication_status' => $request->publication_status,
             'loa_date' => $request->loa_date,
             'loa_number' => $request->loa_number,

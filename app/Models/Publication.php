@@ -193,16 +193,6 @@ class Publication extends Model
     }
 
     // Helper methods untuk status publikasi
-    public function isDraft()
-    {
-        return $this->publication_status === 'draft';
-    }
-
-    public function isSubmitted()
-    {
-        return $this->publication_status === 'submitted';
-    }
-
     public function isAccepted()
     {
         return $this->publication_status === 'accepted';
@@ -221,10 +211,6 @@ class Publication extends Model
     public function getStatusBadgeClass()
     {
         switch ($this->publication_status) {
-            case 'draft':
-                return 'bg-gray-100 text-gray-800';
-            case 'submitted':
-                return 'bg-blue-100 text-blue-800';
             case 'accepted':
                 return 'bg-green-100 text-green-800';
             case 'published':
@@ -237,10 +223,6 @@ class Publication extends Model
     public function getStatusLabel()
     {
         switch ($this->publication_status) {
-            case 'draft':
-                return 'Draft';
-            case 'submitted':
-                return 'Submitted';
             case 'accepted':
                 return 'Accepted (LoA)';
             case 'published':

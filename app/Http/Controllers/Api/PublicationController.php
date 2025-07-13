@@ -45,7 +45,7 @@ class PublicationController extends Controller
             'title' => 'required|string|max:255',
             'abstract' => 'required|string',
             'keywords' => 'required|string',
-            'publication_status' => 'required|in:draft,submitted,accepted,published',
+            'publication_status' => 'required|in:accepted,published',
             'tipe_publikasi' => 'required|array',
             'sumber_artikel' => 'required|in:Skripsi,Magang,Riset',
         ]);
@@ -114,7 +114,7 @@ class PublicationController extends Controller
             'volume' => 'nullable|string|max:50',
             'issue' => 'nullable|string|max:50',
             'pages' => 'nullable|string|max:50',
-            'publication_status' => 'sometimes|required|in:draft,submitted,accepted,published',
+            'publication_status' => 'sometimes|required|in:accepted,published',
         ]);
 
         $publication->update($request->all());

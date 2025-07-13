@@ -16,8 +16,8 @@
     </head>
     <body class="h-full bg-gray-50 dark:bg-gray-900">
         <div class="min-h-full">
-            <!-- Navigation -->
-            <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+            <!-- Navigation - Fixed -->
+            <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex items-center">
@@ -92,8 +92,8 @@
                 </div>
             </nav>
 
-            <!-- Page Content -->
-            <main>
+            <!-- Page Content - with top padding to account for fixed navigation -->
+            <main class="pt-20 pb-8">
                 @yield('content')
             </main>
         </div>

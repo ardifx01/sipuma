@@ -3,7 +3,7 @@
 @section('title', 'Edit Publikasi')
 
 @section('content')
-<div class="min-h-screen bg-orange-50">
+<div class="bg-orange-50">
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <div class="mb-8">
@@ -107,8 +107,6 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status Publikasi *</label>
                             <select name="publication_status" id="publication_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('publication_status') border-red-500 @enderror" required>
                                 <option value="">Pilih Status Publikasi</option>
-                                <option value="draft" {{ old('publication_status', $publication->publication_status) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                <option value="submitted" {{ old('publication_status', $publication->publication_status) == 'submitted' ? 'selected' : '' }}>Submitted ke Publisher</option>
                                 <option value="accepted" {{ old('publication_status', $publication->publication_status) == 'accepted' ? 'selected' : '' }}>Accepted (Ada LoA)</option>
                                 <option value="published" {{ old('publication_status', $publication->publication_status) == 'published' ? 'selected' : '' }}>Published</option>
                             </select>
@@ -159,47 +157,9 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Publisher</label>
-                                <input type="text" name="publisher_name" value="{{ old('publisher_name', $publication->publisher_name) }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('publisher_name') border-red-500 @enderror" 
-                                    placeholder="Springer, Elsevier, IEEE, dll">
-                                @error('publisher_name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Jurnal yang Diharapkan</label>
-                                <input type="text" name="journal_name_expected" value="{{ old('journal_name_expected', $publication->journal_name_expected) }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('journal_name_expected') border-red-500 @enderror" 
-                                    placeholder="Journal of Computer Science">
-                                @error('journal_name_expected')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Perjanjian Publikasi</label>
-                            <textarea name="publication_agreement_notes" rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('publication_agreement_notes') border-red-500 @enderror" 
-                                placeholder="Catatan tentang perjanjian dengan publisher, syarat publikasi, dll...">{{ old('publication_agreement_notes', $publication->publication_agreement_notes) }}</textarea>
-                            @error('publication_agreement_notes')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Publikasi</label>
-                            <textarea name="publication_notes" rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('publication_notes') border-red-500 @enderror" 
-                                placeholder="Catatan tambahan tentang proses publikasi...">{{ old('publication_notes', $publication->publication_notes) }}</textarea>
-                            @error('publication_notes')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
 
                         <!-- File Upload -->
                         <div>

@@ -40,19 +40,19 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-sm font-medium text-gray-500">NIM</label>
-                        <p class="text-gray-900">{{ $publication->student->studentProfile->nim }}</p>
+                        <p class="text-gray-900">{{ $publication->student->studentProfile->nim ?? 'Belum diisi' }}</p>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-500">Program Studi</label>
-                        <p class="text-gray-900">{{ $publication->student->studentProfile->program_studi }}</p>
+                        <p class="text-gray-900">{{ $publication->student->studentProfile->major ?? 'Belum diisi' }}</p>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-500">Fakultas</label>
-                        <p class="text-gray-900">{{ $publication->student->studentProfile->fakultas }}</p>
+                        <p class="text-gray-900">{{ $publication->student->studentProfile->faculty ?? 'Belum diisi' }}</p>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-500">Angkatan</label>
-                        <p class="text-gray-900">{{ $publication->student->studentProfile->angkatan }}</p>
+                        <p class="text-gray-900">{{ $publication->student->studentProfile->year ?? 'Belum diisi' }}</p>
                     </div>
                 </div>
                 @endif
@@ -60,7 +60,7 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-sm font-medium text-gray-500">Tanggal Submit</label>
-                    <p class="text-gray-900">{{ $publication->submission_date->format('d F Y H:i') }}</p>
+                    <p class="text-gray-900">{{ $publication->submission_date ? $publication->submission_date->format('d F Y H:i') : 'N/A' }}</p>
                 </div>
                 <div>
                     <label class="text-sm font-medium text-gray-500">Status Admin</label>
@@ -88,7 +88,7 @@
                 </div>
                 <div>
                     <label class="text-sm font-medium text-gray-500">Tipe Publikasi</label>
-                    <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name }}</span>
+                    <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name ?? 'N/A' }}</span>
                 </div>
             </div>
         </div>
@@ -100,6 +100,61 @@
             <i class="fas fa-file-alt mr-2"></i>
             Detail Publikasi
         </h2>
+        
+        <!-- File Uploads -->
+        <div class="mb-6 p-4 bg-orange-50 rounded-lg">
+            <h3 class="text-md font-semibold text-orange-600 mb-3">File Upload</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @if($publication->file_path)
+                <div class="bg-white p-3 rounded border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-gray-900">File Publikasi</p>
+                            <p class="text-sm text-gray-500">{{ basename($publication->file_path) }}</p>
+                        </div>
+                        <a href="{{ Storage::url($publication->file_path) }}" target="_blank" class="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+                            <i class="fas fa-download mr-1"></i>Download
+                        </a>
+                    </div>
+                </div>
+                @endif
+                
+                @if($publication->loa_file_path)
+                <div class="bg-white p-3 rounded border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-gray-900">File LoA</p>
+                            <p class="text-sm text-gray-500">{{ basename($publication->loa_file_path) }}</p>
+                        </div>
+                        <a href="{{ Storage::url($publication->loa_file_path) }}" target="_blank" class="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+                            <i class="fas fa-download mr-1"></i>Download
+                        </a>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+        
+        <!-- LoA Information -->
+        @if($publication->loa_date || $publication->loa_number)
+        <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <h3 class="text-md font-semibold text-green-600 mb-3">Letter of Acceptance (LoA)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @if($publication->loa_date)
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Tanggal LoA</label>
+                    <p class="text-gray-900 font-medium">{{ $publication->loa_date->format('d F Y') }}</p>
+                </div>
+                @endif
+                @if($publication->loa_number)
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Nomor LoA</label>
+                    <p class="text-gray-900 font-medium">{{ $publication->loa_number }}</p>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
         <div class="space-y-6">
             <div>
                 <label class="text-sm font-medium text-gray-500">Judul Publikasi</label>
@@ -231,5 +286,82 @@
             @endif
         </div>
     </div>
+
+    <!-- Action Buttons -->
+    @if($publication->dosen_status === 'pending')
+    <div class="bg-white rounded-xl shadow border border-orange-200 p-6">
+        <h2 class="text-lg font-bold text-orange-600 mb-4 flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            Review Publikasi
+        </h2>
+        <p class="text-gray-700 mb-6">Silakan review publikasi mahasiswa dan berikan keputusan:</p>
+        
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Form Approve -->
+                <div class="bg-white border-2 border-green-300 rounded-lg p-6 shadow-lg">
+                    <h3 class="text-lg font-bold text-green-700 mb-4 flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Setujui Publikasi
+                    </h3>
+                    <form action="{{ route('dashboard.dosen-approve', $publication->id) }}" method="POST">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Approval (Opsional)</label>
+                                <textarea name="feedback" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Berikan catatan positif atau saran perbaikan..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 text-white px-6 py-4 rounded-lg hover:bg-green-700 flex items-center justify-center font-bold text-lg shadow-md">
+                                <i class="fas fa-check mr-2"></i>
+                                SETUJUI PUBLIKASI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Form Reject -->
+                <div class="bg-white border-2 border-red-300 rounded-lg p-6 shadow-lg">
+                    <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        Tolak Publikasi
+                    </h3>
+                    <form action="{{ route('dashboard.dosen-reject', $publication->id) }}" method="POST">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Penolakan (Opsional)</label>
+                                <textarea name="feedback" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Berikan alasan penolakan atau saran perbaikan..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 text-white px-6 py-4 rounded-lg hover:bg-red-700 flex items-center justify-center font-bold text-lg shadow-md">
+                                <i class="fas fa-times mr-2"></i>
+                                TOLAK PUBLIKASI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @else
+    <div class="bg-white rounded-xl shadow border border-orange-200 p-6">
+        <h2 class="text-lg font-bold text-orange-600 mb-4 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            Status Review
+        </h2>
+        <div class="flex items-center space-x-4">
+            @if($publication->dosen_status === 'approved')
+                <span class="bg-green-100 text-green-700 px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-check mr-2"></i>
+                    Publikasi Telah Disetujui
+                </span>
+            @elseif($publication->dosen_status === 'rejected')
+                <span class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-times mr-2"></i>
+                    Publikasi Telah Ditolak
+                </span>
+            @endif
+        </div>
+    </div>
+    @endif
 </div>
 @endsection 

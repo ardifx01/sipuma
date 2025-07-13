@@ -3,7 +3,7 @@
 @section('title', 'Dashboard Mahasiswa - Sipuma')
 
 @section('content')
-<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex justify-between items-center">
@@ -16,6 +16,46 @@
                 <p class="text-sm font-medium">{{ auth()->user()->studentProfile->nim ?? 'Belum diisi' }}</p>
             </div>
         </div>
+
+        <!-- Success Notification -->
+        @if(session('success'))
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="text-sm font-medium text-green-800">Berhasil!</h3>
+                    <p class="text-sm text-green-700 mt-1">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="ml-auto text-green-400 hover:text-green-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        @endif
+
+        <!-- Error Notification -->
+        @if(session('error'))
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="text-sm font-medium text-red-800">Error!</h3>
+                    <p class="text-sm text-red-700 mt-1">{{ session('error') }}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="ml-auto text-red-400 hover:text-red-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        @endif
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -38,6 +78,51 @@
                 </a>
             </div>
             @if($publications->count() > 0)
+                <!-- Latest Publication Highlight -->
+                @if(session('success') && $publications->count() > 0)
+                <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-sm font-medium text-green-800">Publikasi Terbaru</h3>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-green-300">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 mb-1">{{ $publications->first()->title }}</h4>
+                                <p class="text-sm text-gray-600 mb-2">{{ Str::limit($publications->first()->abstract, 100) }}</p>
+                                <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                    <span>Status: 
+                                        @if($publications->first()->admin_status === 'pending')
+                                            <span class="text-orange-600 font-medium">Menunggu Review</span>
+                                        @elseif($publications->first()->admin_status === 'approved')
+                                            <span class="text-green-600 font-medium">Disetujui</span>
+                                        @else
+                                            <span class="text-red-600 font-medium">Ditolak</span>
+                                        @endif
+                                    </span>
+                                    <span>Upload: {{ $publications->first()->submission_date->format('d/m/Y H:i') }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 ml-4">
+                                <a href="{{ route('publications.show', $publications->first()) }}" class="text-green-600 hover:text-green-700" title="Lihat Detail">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </a>
+                                <a href="{{ route('publications.download', $publications->first()) }}" class="text-green-600 hover:text-green-700" title="Download">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
                 <div class="overflow-x-auto">
                     <x-dashboard-table :head="'<tr><th>Judul</th><th>Jenis</th><th>Status Admin</th><th>Status Dosen</th><th>Tanggal Submit</th><th>Aksi</th></tr>'">
                         @foreach($publications as $publication)
@@ -152,4 +237,41 @@
         </div>
     </div>
 </div>
+
+<script>
+// Auto-hide notifications after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const notifications = document.querySelectorAll('.bg-green-50, .bg-red-50');
+    
+    notifications.forEach(notification => {
+        setTimeout(() => {
+            if (notification && notification.parentElement) {
+                notification.style.transition = 'opacity 0.5s ease-out';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 500);
+            }
+        }, 5000);
+    });
+    
+    // Add click to dismiss functionality
+    const dismissButtons = document.querySelectorAll('[onclick*="remove()"]');
+    dismissButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const notification = this.closest('.bg-green-50, .bg-red-50');
+            if (notification) {
+                notification.style.transition = 'opacity 0.3s ease-out';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        });
+    });
+});
+</script>
 @endsection 

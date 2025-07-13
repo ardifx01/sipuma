@@ -199,4 +199,10 @@ return [
 
         'store' => 'default',
     ],
+
+    /*
+     * The guard used by the application to authenticate users.
+     */
+
+    'guard_name' => env('PERMISSION_GUARD_NAME', 'web'),
 ];
