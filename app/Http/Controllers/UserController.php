@@ -17,9 +17,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['roles', 'studentProfile', 'dosenProfile'])->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-        
-        return view('users.index', compact('users'));
+        $publications = \App\Models\Publication::with(['student', 'publicationType', 'student.studentProfile'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('users.index', compact('publications'));
     }
 
     /**
@@ -28,6 +31,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
+
         return view('users.create', compact('roles'));
     }
 
@@ -61,6 +65,7 @@ class UserController extends Controller
     public function show(string $id)
     {
         $user = User::with(['roles', 'publications'])->findOrFail($id);
+
         return view('users.show', compact('user'));
     }
 
@@ -71,6 +76,7 @@ class UserController extends Controller
     {
         $user = User::with(['roles'])->findOrFail($id);
         $roles = Role::all();
+
         return view('users.edit', compact('user', 'roles'));
     }
 
@@ -83,7 +89,7 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|exists:roles,name',
         ]);
@@ -112,7 +118,7 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
-        
+
         // Prevent admin from deleting themselves
         if ($user->id === auth()->id()) {
             return redirect()->route('users.index')

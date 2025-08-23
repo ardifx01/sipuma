@@ -125,6 +125,27 @@ button[type="button"]:hover, button[type="submit"]:hover {
                     <form action="{{ route('publications.store') }}" method="POST" enctype="multipart/form-data" id="publicationForm">
                         @csrf
                         
+                        {{-- Tambahkan di atas form --}}
+                        @if ($errors->any())
+                            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                                <ul class="list-disc pl-5">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+                        @if (session('success'))
+                            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
                         <!-- Progress Steps -->
                         <div class="mb-8">
                             <div class="flex items-center justify-center space-x-4">
@@ -444,8 +465,8 @@ button[type="button"]:hover, button[type="submit"]:hover {
                                 </div>
 
                                 <!-- HKI Fields -->
-                                <div id="hki_fields" class="space-y-6 hidden">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi HKI</h3>
+                                <div id="hki_fields" class="space-y-6 hidden mt-16 pt-8 border-t-2 border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4 mt-8">Informasi HKI</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label for="hki_publication_date" class="block text-sm font-medium text-gray-700 mb-2">
@@ -597,10 +618,10 @@ button[type="button"]:hover, button[type="submit"]:hover {
                                 <div class="space-y-6">
                                     <div>
                                         <label for="file_path" class="block text-sm font-medium text-gray-700 mb-2">
-                                            File Publikasi <span class="text-red-500">*</span>
+                                            File Publikasi
                                         </label>
                                         <input type="file" name="file_path" id="file_path" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" accept=".pdf,.doc,.docx" required>
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" accept=".pdf,.doc,.docx">
                                         <p class="text-xs text-gray-500 mt-1">Format: PDF, DOC, DOCX (Max: 10MB)</p>
                                         @error('file_path')
                                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -703,18 +724,22 @@ function toggleFields() {
     
     // Show/hide HKI fields
     const hkiFields = document.getElementById('hki_fields');
-    if (selectedTipes.includes('HKI')) {
-        hkiFields.classList.remove('hidden');
-    } else {
-        hkiFields.classList.add('hidden');
+    if (hkiFields) {
+        if (selectedTipes.includes('HKI')) {
+            hkiFields.classList.remove('hidden');
+        } else {
+            hkiFields.classList.add('hidden');
+        }
     }
     
     // Show/hide Book fields
     const bookFields = document.getElementById('book_fields');
-    if (selectedTipes.includes('Buku')) {
-        bookFields.classList.remove('hidden');
-    } else {
-        bookFields.classList.add('hidden');
+    if (bookFields) {
+        if (selectedTipes.includes('Buku')) {
+            bookFields.classList.remove('hidden');
+        } else {
+            bookFields.classList.add('hidden');
+        }
     }
 }
 
@@ -724,31 +749,74 @@ function togglePublicationFields() {
     const journalFields = document.getElementById('journal_fields');
     
     // Hide all fields first
-    loaFields.classList.add('hidden');
-    journalFields.classList.add('hidden');
+    if (loaFields) loaFields.classList.add('hidden');
+    if (journalFields) journalFields.classList.add('hidden');
     
     // Show fields based on status
-    if (publicationStatus === 'accepted') {
+    if (publicationStatus === 'accepted' && loaFields) {
         loaFields.classList.remove('hidden');
         console.log('✅ LoA fields shown for accepted status');
     }
     
-    if (publicationStatus === 'published') {
+    if (publicationStatus === 'published' && journalFields) {
         journalFields.classList.remove('hidden');
         console.log('✅ Journal fields shown for published status');
     }
     
     console.log('📊 Publication status changed to:', publicationStatus);
-    console.log('📋 LoA fields visible:', !loaFields.classList.contains('hidden'));
-    console.log('📖 Journal fields visible:', !journalFields.classList.contains('hidden'));
+    console.log('📋 LoA fields visible:', !loaFields || !loaFields.classList.contains('hidden'));
+    console.log('📖 Journal fields visible:', !journalFields || !journalFields.classList.contains('hidden'));
     
     // Additional validation
-    if (publicationStatus === 'published' && !loaFields.classList.contains('hidden')) {
+    if (publicationStatus === 'published' && loaFields && !loaFields.classList.contains('hidden')) {
         console.log('⚠️ Warning: LoA fields should be hidden for published status');
     }
     
-    if (publicationStatus === 'accepted' && !journalFields.classList.contains('hidden')) {
+    if (publicationStatus === 'accepted' && journalFields && !journalFields.classList.contains('hidden')) {
         console.log('⚠️ Warning: Journal fields should be hidden for accepted status');
+    }
+}
+
+function setFieldsDisabledByVisibility() {
+    // LoA
+    const loaFields = document.getElementById('loa_fields');
+    if (loaFields) {
+        loaFields.querySelectorAll('input,select,textarea').forEach(el => {
+            el.disabled = loaFields.classList.contains('hidden');
+        });
+    }
+    // Journal
+    const journalFields = document.getElementById('journal_fields');
+    if (journalFields) {
+        journalFields.querySelectorAll('input,select,textarea').forEach(el => {
+            el.disabled = journalFields.classList.contains('hidden');
+        });
+    }
+    // HKI
+    const hkiFields = document.getElementById('hki_fields');
+    if (hkiFields) {
+        hkiFields.querySelectorAll('input,select,textarea').forEach(el => {
+            el.disabled = hkiFields.classList.contains('hidden');
+        });
+    }
+    // Buku
+    const bookFields = document.getElementById('book_fields');
+    if (bookFields) {
+        bookFields.querySelectorAll('input,select,textarea').forEach(el => {
+            el.disabled = bookFields.classList.contains('hidden');
+        });
+    }
+}
+
+function setStepFieldsDisabled() {
+    for (let i = 1; i <= totalSteps; i++) {
+        const stepDiv = document.getElementById(`step${i}`);
+        if (stepDiv) {
+            const isActive = !stepDiv.classList.contains('hidden');
+            stepDiv.querySelectorAll('input,select,textarea').forEach(el => {
+                el.disabled = !isActive;
+            });
+        }
     }
 }
 
@@ -758,6 +826,8 @@ function nextStep() {
         currentStep++;
         document.getElementById(`step${currentStep}`).classList.remove('hidden');
         updateProgressSteps();
+        setFieldsDisabledByVisibility();
+        setStepFieldsDisabled();
     }
 }
 
@@ -767,6 +837,8 @@ function prevStep() {
         currentStep--;
         document.getElementById(`step${currentStep}`).classList.remove('hidden');
         updateProgressSteps();
+        setFieldsDisabledByVisibility();
+        setStepFieldsDisabled();
     }
 }
 
@@ -778,14 +850,14 @@ function updateProgressSteps() {
         const progressText = step.querySelector('.text-sm.font-medium');
         
         if (stepNumber < currentStep) {
-            progressCircle.className = 'w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium';
-            progressText.className = 'ml-2 text-sm font-medium text-green-600 dark:text-green-400';
+            if (progressCircle) progressCircle.className = 'w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium';
+            if (progressText) progressText.className = 'ml-2 text-sm font-medium text-green-600 dark:text-green-400';
         } else if (stepNumber === currentStep) {
-            progressCircle.className = 'w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-medium';
-            progressText.className = 'ml-2 text-sm font-medium text-gray-900';
+            if (progressCircle) progressCircle.className = 'w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-medium';
+            if (progressText) progressText.className = 'ml-2 text-sm font-medium text-gray-900';
         } else {
-            progressCircle.className = 'w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium';
-            progressText.className = 'ml-2 text-sm font-medium text-gray-500';
+            if (progressCircle) progressCircle.className = 'w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium';
+            if (progressText) progressText.className = 'ml-2 text-sm font-medium text-gray-500';
         }
     });
 }
@@ -793,18 +865,23 @@ function updateProgressSteps() {
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     const sumberArtikelSelect = document.getElementById('sumber_artikel');
-    sumberArtikelSelect.addEventListener('change', updateTipePublikasi);
+    if (sumberArtikelSelect) sumberArtikelSelect.addEventListener('change', updateTipePublikasi);
     
     // Form submission handling
     const form = document.getElementById('publicationForm');
     const submitBtn = document.getElementById('submitBtn');
     
     form.addEventListener('submit', function(e) {
+        setFieldsDisabledByVisibility();
+        // Enable all fields before submission to ensure data is sent
+        form.querySelectorAll('input,select,textarea').forEach(el => {
+            el.disabled = false;
+        });
         console.log('Form submission started');
         
         // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `
+        if (submitBtn) submitBtn.disabled = true;
+        if (submitBtn) submitBtn.innerHTML = `
             <svg class="animate-spin w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -825,13 +902,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        // Validate tipe publikasi (required but no HTML required attribute)
+        const tipePublikasiCheckboxes = form.querySelectorAll('input[name="tipe_publikasi[]"]:checked');
+        if (tipePublikasiCheckboxes.length === 0) {
+            isValid = false;
+            console.log('Tipe publikasi not selected');
+            alert('Mohon pilih minimal satu tipe publikasi!');
+        }
+        
         if (!isValid) {
             e.preventDefault();
             alert('Mohon lengkapi semua field yang wajib diisi!');
             
             // Reset button state
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `
+            if (submitBtn) submitBtn.disabled = false;
+            if (submitBtn) submitBtn.innerHTML = `
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -840,15 +925,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Check file upload
+        // Check file upload only if publication status is 'published'
+        const publicationStatus = document.getElementById('publication_status').value;
         const fileInput = document.getElementById('file_path');
-        if (fileInput && fileInput.files.length === 0) {
+        if (publicationStatus === 'published' && fileInput && fileInput.files.length === 0) {
             e.preventDefault();
-            alert('Mohon pilih file publikasi!');
+            alert('Untuk status Published, file publikasi wajib diupload!');
             
             // Reset button state
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `
+            if (submitBtn) submitBtn.disabled = false;
+            if (submitBtn) submitBtn.innerHTML = `
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -863,8 +949,8 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // Reset button state
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `
+            if (submitBtn) submitBtn.disabled = false;
+            if (submitBtn) submitBtn.innerHTML = `
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -882,6 +968,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(key + ': ' + value);
         }
         
+        // Log all form fields for debugging
+        console.log('All form fields:');
+        form.querySelectorAll('input,select,textarea').forEach(field => {
+            console.log(field.name + ': ' + field.value + ' (disabled: ' + field.disabled + ')');
+        });
+        
         // Allow form to submit
         console.log('Form will submit now');
     });
@@ -890,14 +982,16 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTipePublikasi();
     updateProgressSteps();
     togglePublicationFields(); // Initial call to set correct fields visibility
+    setFieldsDisabledByVisibility(); // Initial call to set correct disabled state
+    setStepFieldsDisabled(); // Initial call to set correct disabled state for all steps
     
     // Debug button visibility
     console.log('Submit button found:', submitBtn);
-    console.log('Submit button text:', submitBtn.textContent);
-    console.log('Submit button classes:', submitBtn.className);
+    console.log('Submit button text:', submitBtn ? submitBtn.textContent : 'N/A');
+    console.log('Submit button classes:', submitBtn ? submitBtn.className : 'N/A');
     
     // Add click event for debugging
-    submitBtn.addEventListener('click', function(e) {
+    if (submitBtn) submitBtn.addEventListener('click', function(e) {
         console.log('Submit button clicked!');
     });
     
@@ -926,6 +1020,7 @@ document.addEventListener('DOMContentLoaded', function() {
         publicationStatusSelect.addEventListener('change', function(e) {
             console.log('Publication status changed to:', e.target.value);
             togglePublicationFields();
+            setFieldsDisabledByVisibility(); // Update disabled state after publication status change
         });
     }
 });

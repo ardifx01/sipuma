@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\StudentProfile;
 use App\Models\DosenProfile;
-use Spatie\Permission\Models\Role;
+use App\Models\StudentProfile;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class TestUserSeeder extends Seeder
 {
@@ -26,7 +26,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Administrator',
             'email' => 'admin@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $admin->assignRole($adminRole);
 
@@ -35,7 +34,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Dr. Ahmad Supriyadi, S.Kom., M.Kom.',
             'email' => 'ahmad.supriyadi@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $dosen1->assignRole($dosenRole);
 
@@ -51,7 +49,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Dr. Siti Nurhaliza, S.Si., M.Si.',
             'email' => 'siti.nurhaliza@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $dosen2->assignRole($dosenRole);
 
@@ -68,7 +65,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Budi Santoso',
             'email' => 'budi.santoso@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $mahasiswa1->assignRole($mahasiswaRole);
 
@@ -85,7 +81,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Dewi Sartika',
             'email' => 'dewi.sartika@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $mahasiswa2->assignRole($mahasiswaRole);
 
@@ -103,7 +98,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Rizki Pratama',
             'email' => 'rizki.pratama@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $mahasiswa3->assignRole($mahasiswaRole);
 
@@ -120,7 +114,6 @@ class TestUserSeeder extends Seeder
             'name' => 'Nina Safitri',
             'email' => 'nina.safitri@sipuma.test',
             'password' => Hash::make('password'),
-            'email_verified_at' => now(),
         ]);
         $mahasiswa4->assignRole($mahasiswaRole);
 

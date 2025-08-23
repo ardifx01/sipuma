@@ -23,7 +23,7 @@
         <div class="p-6">
             <h2 class="text-lg font-bold text-orange-600 mb-6 flex items-center">
                 <i class="fas fa-clipboard-list mr-2"></i>
-                Publikasi Menunggu Review Dosen
+                Publikasi yang Menunggu Review Dosen
             </h2>
             @if($publications->count() > 0)
                 <div class="overflow-x-auto">
@@ -63,10 +63,26 @@
                                     <div class="text-xs text-gray-500">{{ $publication->submission_date->diffForHumans() }}</div>
                                 </td>
                                 <td class="py-2 px-4">
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui Admin</span>
+                                    @if($publication->admin_status === 'pending')
+                                        <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu Admin</span>
+                                    @elseif($publication->admin_status === 'approved')
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui Admin</span>
+                                    @elseif($publication->admin_status === 'rejected')
+                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak Admin</span>
+                                    @else
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
+                                    @endif
                                 </td>
                                 <td class="py-2 px-4">
-                                    <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu Review</span>
+                                    @if($publication->dosen_status === 'pending')
+                                        <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu Review</span>
+                                    @elseif($publication->dosen_status === 'approved')
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui</span>
+                                    @elseif($publication->dosen_status === 'rejected')
+                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak</span>
+                                    @else
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
+                                    @endif
                                 </td>
                                 <td class="py-2 px-4">
                                     <div class="flex space-x-2">

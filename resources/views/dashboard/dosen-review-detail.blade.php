@@ -87,12 +87,92 @@
                     @endif
                 </div>
                 <div>
+                    <label class="text-sm font-medium text-gray-500">Status Publikasi</label>
+                    @if($publication->publication_status === 'accepted')
+                        <div class="space-y-1">
+                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-medium">LoA (Letter of Acceptance)</span>
+                            <p class="text-xs text-gray-600">Publikasi telah diterima jurnal, menunggu terbit</p>
+                        </div>
+                    @elseif($publication->publication_status === 'published')
+                        <div class="space-y-1">
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">Published</span>
+                            <p class="text-xs text-gray-600">Publikasi sudah terbit di jurnal</p>
+                        </div>
+                    @elseif($publication->publication_status === 'submitted')
+                        <div class="space-y-1">
+                            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">Submitted</span>
+                            <p class="text-xs text-gray-600">Publikasi telah disubmit ke jurnal</p>
+                        </div>
+                    @else
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
+                    @endif
+                </div>
+                <div>
                     <label class="text-sm font-medium text-gray-500">Tipe Publikasi</label>
                     <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name ?? 'N/A' }}</span>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Status Publikasi -->
+    @if($publication->publication_status === 'published')
+    <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+        <div class="flex items-center mb-4">
+            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-green-600">Publikasi Sudah Terbit</h2>
+                <p class="text-green-700">Artikel ini sudah dipublikasikan di jurnal</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @if($publication->journal_name)
+            <div class="bg-white p-3 rounded border border-green-200">
+                <p class="text-sm font-medium text-gray-500">Jurnal</p>
+                <p class="text-green-700 font-semibold">{{ $publication->journal_name }}</p>
+            </div>
+            @endif
+            @if($publication->publication_date)
+            <div class="bg-white p-3 rounded border border-green-200">
+                <p class="text-sm font-medium text-gray-500">Tanggal Terbit</p>
+                <p class="text-green-700 font-semibold">{{ $publication->publication_date->format('d F Y') }}</p>
+            </div>
+            @endif
+            @if($publication->journal_url)
+            <div class="bg-white p-3 rounded border border-green-200">
+                <p class="text-sm font-medium text-gray-500">URL Artikel</p>
+                <a href="{{ $publication->journal_url }}" target="_blank" class="text-green-600 hover:text-green-800 font-semibold">
+                    Lihat Artikel →
+                </a>
+            </div>
+            @endif
+        </div>
+    </div>
+    @elseif($publication->publication_status === 'accepted')
+    <div class="bg-orange-50 border border-orange-200 rounded-xl p-6">
+        <div class="flex items-center mb-4">
+            <div class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-orange-600">Letter of Acceptance (LoA)</h2>
+                <p class="text-orange-700">Artikel telah diterima jurnal, menunggu proses publikasi</p>
+            </div>
+        </div>
+        @if($publication->loa_date)
+        <div class="bg-white p-3 rounded border border-orange-200">
+            <p class="text-sm font-medium text-gray-500">Tanggal LoA</p>
+            <p class="text-orange-700 font-semibold">{{ $publication->loa_date->format('d F Y') }}</p>
+        </div>
+        @endif
+    </div>
+    @endif
 
     <!-- Detail Publikasi -->
     <div class="bg-white rounded-xl shadow border border-orange-200 p-6">

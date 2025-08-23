@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
- *
  * @property int $id
  * @property int $student_id
  * @property string $title
@@ -59,6 +57,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
  * @property-read int|null $reviews_count
  * @property-read \App\Models\User $student
+ * @property array|null $revision_history
+ * @property int $revision_number
+ * @property string|null $rejection_reason
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Publication newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Publication newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Publication query()
@@ -110,6 +112,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Publication whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Publication whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Publication whereVolume($value)
+ *
  * @mixin \Eloquent
  */
 class Publication extends Model
@@ -139,9 +142,9 @@ class Publication extends Model
         'submission_date_to_publisher',
         'expected_publication_date',
         'publication_notes',
-                    'publisher_name',
-            'journal_name_expected',
-            'publication_agreement_notes',
+        'publisher_name',
+        'journal_name_expected',
+        'publication_agreement_notes',
         'admin_status',
         'dosen_status',
         'admin_feedback',
@@ -162,6 +165,10 @@ class Publication extends Model
         'book_isbn',
         'book_pdf',
         'admin_reviewed_at',
+        // Revision fields
+        'revision_number',
+        'rejection_reason',
+        'revision_history',
     ];
 
     protected $casts = [
@@ -175,6 +182,7 @@ class Publication extends Model
         'expected_publication_date' => 'date',
         'book_year' => 'integer',
         'admin_reviewed_at' => 'datetime',
+        'revision_history' => 'array',
     ];
 
     public function student()
@@ -203,32 +211,105 @@ class Publication extends Model
         return $this->publication_status === 'published';
     }
 
+    public function isDraft()
+    {
+        return $this->publication_status === 'draft';
+    }
+
+    public function isSubmitted()
+    {
+        return $this->publication_status === 'submitted';
+    }
+
     public function hasLoA()
     {
-        return !empty($this->loa_file_path);
+        return ! empty($this->loa_file_path);
     }
 
     public function getStatusBadgeClass()
     {
-        switch ($this->publication_status) {
-            case 'accepted':
-                return 'bg-green-100 text-green-800';
-            case 'published':
-                return 'bg-purple-100 text-purple-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
+        return match ($this->publication_status) {
+            'draft' => 'bg-gray-100 text-gray-800',
+            'submitted' => 'bg-blue-100 text-blue-800',
+            'accepted' => 'bg-orange-100 text-orange-800',
+            'published' => 'bg-green-100 text-green-800',
+            default => 'bg-gray-100 text-gray-800',
+        };
     }
 
     public function getStatusLabel()
     {
-        switch ($this->publication_status) {
-            case 'accepted':
-                return 'Accepted (LoA)';
-            case 'published':
-                return 'Published';
-            default:
-                return 'Unknown';
-        }
+        return match ($this->publication_status) {
+            'draft' => 'Draft',
+            'submitted' => 'Submitted',
+            'accepted' => 'Accepted',
+            'published' => 'Published',
+            default => 'Unknown',
+        };
+    }
+
+    // Revision System Methods
+    public function canBeRevised()
+    {
+        return $this->admin_status === 'rejected' || $this->dosen_status === 'rejected';
+    }
+
+    public function addRevisionHistory($oldData, $reason = null)
+    {
+        $history = $this->revision_history ?? [];
+
+        $history[] = [
+            'revision_number' => $this->revision_number,
+            'timestamp' => now()->toISOString(),
+            'old_data' => $oldData,
+            'reason' => $reason,
+            'status_before' => $this->admin_status,
+        ];
+
+        $this->revision_history = $history;
+        $this->save();
+    }
+
+    public function incrementRevision()
+    {
+        $this->revision_number++;
+        $this->save();
+    }
+
+    public function resetForRevision()
+    {
+        // Simpan data lama ke history
+        $oldData = [
+            'title' => $this->title,
+            'file_path' => $this->file_path,
+            'loa_file_path' => $this->loa_file_path,
+            'admin_status' => $this->admin_status,
+            'dosen_status' => $this->dosen_status,
+            'rejection_reason' => $this->rejection_reason,
+        ];
+
+        $this->addRevisionHistory($oldData, $this->rejection_reason);
+
+        // Reset status untuk revisi
+        $this->admin_status = 'pending';
+        $this->dosen_status = 'pending';
+        $this->rejection_reason = null;
+        $this->admin_feedback = null;
+        $this->dosen_feedback = null;
+        $this->incrementRevision();
+
+        $this->save();
+    }
+
+    public function getRevisionHistory()
+    {
+        return $this->revision_history ?? [];
+    }
+
+    public function getLatestRevision()
+    {
+        $history = $this->getRevisionHistory();
+
+        return end($history) ?: null;
     }
 }

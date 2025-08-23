@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,8 +9,6 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * 
- *
  * @property int $id
  * @property string $name
  * @property string $email
@@ -26,6 +23,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Publication[] $publications
  * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  * @property \Illuminate\Database\Eloquent\Collection|\App\Models\StudentProfile[] $supervisedStudents
+ *
  * @method bool hasRole(string|array $role)
  * @method bool hasAnyRole(string|array $roles)
  * @method bool hasAllRoles(string|array $roles)
@@ -39,6 +37,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @method void revokePermissionTo(string|array $permission)
  * @method void syncPermissions(string|array $permissions)
  * @method \Laravel\Sanctum\NewAccessToken createToken(string $name, array $abilities = ['*'])
+ *
  * @property string|null $remember_token
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
@@ -49,6 +48,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read int|null $supervised_students_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -65,12 +65,13 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutRole($roles, $guard = null)
+ *
  * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -131,6 +132,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(StudentProfile::class, 'supervisor_id');
     }
-
-
 }

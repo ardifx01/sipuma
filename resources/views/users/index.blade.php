@@ -3,20 +3,20 @@
 @section('title', 'Publikasi Mahasiswa dan Dosen')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+<div class="min-h-screen bg-orange-50">
     <div class="p-6 space-y-8">
         <!-- Header dengan desain modern -->
-        <div class="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-2xl p-8 text-white shadow-xl">
-            <div class="absolute inset-0 bg-black opacity-10"></div>
+        <div class="relative overflow-hidden bg-orange-600 rounded-2xl p-8 text-white shadow-xl border border-orange-200">
+            <div class="absolute inset-0 bg-black opacity-5"></div>
             <div class="relative z-10">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h1 class="text-4xl font-bold mb-2">Publikasi Mahasiswa dan Dosen</h1>
-                        <p class="text-purple-100 text-lg">Lihat semua publikasi mahasiswa dan dosen dalam sistem</p>
-                        <p class="text-purple-200 text-sm mt-1">Akses data publikasi, role, dan akun</p>
+                        <h1 class="text-4xl font-bold mb-2">Daftar User Sistem</h1>
+                        <p class="text-orange-100 text-lg">Lihat seluruh akun mahasiswa, dosen, dan admin</p>
+                        <p class="text-orange-200 text-sm mt-1">Kelola akses dan data user</p>
                     </div>
                     <div class="text-right">
-                        <a href="{{ route('users.create') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 backdrop-blur-sm border border-white border-opacity-30">
+                        <a href="{{ route('users.create') }}" class="bg-white hover:bg-orange-100 text-orange-600 font-semibold py-3 px-6 rounded-xl transition-all duration-200 border border-orange-300 shadow">
                             <i class="fas fa-plus mr-2"></i>
                             Tambah User
                         </a>
@@ -44,55 +44,61 @@
         @endif
 
         <!-- Users Table dengan desain modern -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
-                <h2 class="text-xl font-bold text-white flex items-center">
-                    <i class="fas fa-users mr-3"></i>
-                    Daftar Semua User
+        <div class="bg-white rounded-2xl shadow-lg border border-orange-200 overflow-hidden">
+            <div class="bg-orange-100 px-6 py-4">
+                <h2 class="text-xl font-bold text-orange-700 flex items-center">
+                    <i class="fas fa-file-alt mr-3"></i>
+                    Daftar Seluruh Publikasi
                 </h2>
             </div>
             <div class="p-6">
-                @if($users->count() > 0)
+                @if($publications->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
-                                <tr class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Nama</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Email</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">NIM/NIP</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Aksi</th>
+                                <tr class="bg-orange-50 border-b border-orange-200">
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Judul</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nama Mahasiswa</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tipe</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tanggal</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                                @foreach($users as $user)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <tbody class="divide-y divide-orange-100">
+                                @foreach($publications as $publication)
+                                <tr class="hover:bg-orange-50 transition-colors duration-200">
+                                    <td class="px-6 py-4 font-semibold text-gray-900">{{ Str::limit($publication->title, 60) }}</td>
+                                    <td class="px-6 py-4 text-gray-900">{{ $publication->student->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-900">{{ $publication->publicationType->name ?? '-' }}</td>
                                     <td class="px-6 py-4">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
-                                                {{ substr($user->name, 0, 2) }}
-                                            </div>
-                                            <div>
-                                                <div class="font-semibold text-gray-900 dark:text-white">{{ $user->name }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="text-gray-900 dark:text-white">{{ $user->email }}</span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        @if($user->hasRole('mahasiswa'))
-                                            <span class="font-mono text-blue-700 dark:text-blue-300">{{ $user->studentProfile->nim ?? '-' }}</span>
-                                        @elseif($user->hasRole('dosen'))
-                                            <span class="font-mono text-orange-700 dark:text-orange-300">{{ $user->dosenProfile->nidn ?? '-' }}</span>
+                                        @if($publication->admin_status === 'pending')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                                                <i class="fas fa-clock mr-1"></i>Menunggu
+                                            </span>
+                                        @elseif($publication->admin_status === 'approved')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                <i class="fas fa-check mr-1"></i>Disetujui
+                                            </span>
+                                        @elseif($publication->admin_status === 'rejected')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                                <i class="fas fa-times mr-1"></i>Ditolak
+                                            </span>
                                         @else
-                                            <span class="text-gray-400">-</span>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                                <i class="fas fa-minus mr-1"></i>{{ ucfirst($publication->admin_status) }}
+                                            </span>
                                         @endif
                                     </td>
+                                    <td class="px-6 py-4 text-gray-900">{{ $publication->created_at->format('d M Y') }}</td>
                                     <td class="px-6 py-4">
                                         <div class="flex space-x-2">
-                                            @if($user->hasRole('mahasiswa'))
-                                            <a href="{{ route('dashboard.student-publications', $user->id) }}" class="bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold py-2 px-3 rounded-lg transition-all duration-200 text-xs border border-orange-300">
-                                                <i class="fas fa-list mr-1"></i> Lihat Publikasi
+                                            <a href="{{ route('publications.show', $publication->id) }}" class="bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold py-2 px-3 rounded-lg transition-all duration-200 text-xs border border-orange-300">
+                                                <i class="fas fa-eye mr-1"></i> Detail
+                                            </a>
+                                            @if($publication->file_path)
+                                            <a href="{{ asset('storage/' . $publication->file_path) }}" target="_blank" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-3 rounded-lg transition-all duration-200 text-xs border border-gray-300">
+                                                <i class="fas fa-download mr-1"></i> File
                                             </a>
                                             @endif
                                         </div>
@@ -104,18 +110,18 @@
                     </div>
                 @else
                     <div class="text-center py-12">
-                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-users text-3xl text-gray-400 dark:text-gray-500"></i>
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-file-alt text-3xl text-gray-400"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Belum ada user</h3>
-                        <p class="text-gray-600 dark:text-gray-400">User akan muncul di sini setelah ditambahkan</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum ada publikasi</h3>
+                        <p class="text-gray-600">Publikasi akan muncul di sini setelah ditambahkan</p>
                     </div>
                 @endif
                 
                 <!-- Pagination -->
-                @if($users->hasPages())
+                @if($publications->hasPages())
                 <div class="mt-6">
-                    {{ $users->links() }}
+                    {{ $publications->links() }}
                 </div>
                 @endif
             </div>

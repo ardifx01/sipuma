@@ -33,7 +33,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Judul Publikasi *</label>
                                 <input type="text" name="title" value="{{ old('title', $publication->title) }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('title') border-red-500 @enderror" 
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('title') border-red-500 @else border-gray-300 @enderror" 
                                     placeholder="Masukkan judul publikasi">
                                 @error('title')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -120,7 +120,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal LoA</label>
                                 <input type="date" name="loa_date" value="{{ old('loa_date', $publication->loa_date ? $publication->loa_date->format('Y-m-d') : '') }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('loa_date') border-red-500 @enderror">
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('loa_date') border-red-500 @else border-gray-300 @enderror">
                                 @error('loa_date')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -129,7 +129,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nomor LoA</label>
                                 <input type="text" name="loa_number" value="{{ old('loa_number', $publication->loa_number) }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('loa_number') border-red-500 @enderror" 
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('loa_number') border-red-500 @else border-gray-300 @enderror" 
                                     placeholder="LOA-2024-001">
                                 @error('loa_number')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -141,7 +141,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Submit ke Publisher</label>
                                 <input type="date" name="submission_date_to_publisher" value="{{ old('submission_date_to_publisher', $publication->submission_date_to_publisher ? $publication->submission_date_to_publisher->format('Y-m-d') : '') }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('submission_date_to_publisher') border-red-500 @enderror">
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('submission_date_to_publisher') border-red-500 @else border-gray-300 @enderror">
                                 @error('submission_date_to_publisher')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -150,7 +150,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Perkiraan Tanggal Publikasi</label>
                                 <input type="date" name="expected_publication_date" value="{{ old('expected_publication_date', $publication->expected_publication_date ? $publication->expected_publication_date->format('Y-m-d') : '') }}" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('expected_publication_date') border-red-500 @enderror">
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('expected_publication_date') border-red-500 @else border-gray-300 @enderror">
                                 @error('expected_publication_date')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -166,7 +166,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">File Publikasi</label>
                             <div class="file-input-container">
                                 <input type="file" name="file" id="file" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('file') border-red-500 @enderror" 
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('file') border-red-500 @else border-gray-300 @enderror" 
                                     accept=".pdf,.doc,.docx">
                                 <p class="mt-1 text-sm text-gray-600">Format yang didukung: PDF, DOC, DOCX (Maksimal 10MB)</p>
                             </div>
@@ -190,7 +190,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">File LoA (Letter of Acceptance)</label>
                             <div class="file-input-container">
                                 <input type="file" name="loa_file_path" id="loa_file_path" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 @error('loa_file_path') border-red-500 @enderror" 
+                                    class="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 border @error('loa_file_path') border-red-500 @else border-gray-300 @enderror" 
                                     accept=".pdf,.jpg,.jpeg,.png">
                                 <p class="mt-1 text-sm text-gray-600">Format yang didukung: PDF, JPG, PNG (Maksimal 5MB)</p>
                             </div>

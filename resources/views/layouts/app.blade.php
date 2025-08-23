@@ -38,9 +38,14 @@
                                 <a href="{{ route('dashboard') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 dark:text-white border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600">
                                     Dashboard
                                 </a>
-                                @if(!Auth::user()->hasRole('admin'))
+                                @if(Auth::user()->hasRole('mahasiswa'))
                                 <a href="{{ route('publications.index') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300">
                                     Publikasi Saya
+                                </a>
+                                @endif
+                                @if(Auth::user()->hasRole('dosen'))
+                                <a href="{{ route('dashboard.dosen-all-publications') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300">
+                                    Publikasi Mahasiswa
                                 </a>
                                 @endif
                                 @if(Auth::user()->hasRole('admin'))

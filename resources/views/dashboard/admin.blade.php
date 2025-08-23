@@ -21,10 +21,25 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <x-dashboard-card title="Total Publikasi">{{ $totalPublications }}</x-dashboard-card>
             <x-dashboard-card title="Menunggu Review">{{ $pendingReviews }}</x-dashboard-card>
             <x-dashboard-card title="Publikasi Disetujui">{{ $approvedPublications }}</x-dashboard-card>
+            <div class="bg-white rounded-xl shadow border border-orange-200 p-6">
+                <div class="flex items-center">
+                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Laporan Akreditasi</p>
+                        <a href="{{ route('reports.index') }}" class="text-lg font-bold text-green-600 hover:text-green-700">
+                            Generate →
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Recent Activities -->
@@ -46,55 +61,91 @@
                 <div class="p-6">
                     <div class="space-y-4 max-h-96 overflow-y-auto">
                         @forelse($recentPublications as $publication)
-                        <div class="bg-orange-50 rounded-lg p-4 hover:bg-orange-100 transition-all border border-orange-100 hover:border-orange-300">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <h3 class="font-semibold text-gray-900 text-sm">{{ Str::limit($publication->title, 50) }}</h3>
-                                    <p class="text-xs text-gray-600 mt-1">
-                                        <i class="fas fa-user mr-1"></i>{{ $publication->student->name }}
-                                    </p>
-                                    <p class="text-xs text-gray-600">
-                                        <i class="fas fa-tag mr-1"></i>{{ $publication->publicationType->name }}
-                                    </p>
-                                    <!-- Status Review Dosen -->
-                                    <div class="mt-2 flex items-center space-x-2">
-                                        <span class="text-xs text-gray-500">Dosen:</span>
-                                        @if($publication->dosen_status === 'pending')
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                                <i class="fas fa-clock mr-1"></i>Menunggu Review
+                            @if($publication->admin_status === 'pending')
+                                <a href="{{ url('/admin/review/' . $publication->id) }}" class="block bg-orange-50 rounded-lg p-4 hover:bg-orange-200 transition-all border border-orange-100 hover:border-orange-400 cursor-pointer shadow-sm mb-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-900 text-sm">{{ Str::limit($publication->title, 50) }}</h3>
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                <i class="fas fa-user mr-1"></i>{{ $publication->student->name }}
+                                            </p>
+                                            <p class="text-xs text-gray-600">
+                                                <i class="fas fa-tag mr-1"></i>{{ $publication->publicationType->name }}
+                                            </p>
+                                            <div class="mt-2 flex items-center space-x-2">
+                                                <span class="text-xs text-gray-500">Dosen:</span>
+                                                @if($publication->dosen_status === 'pending')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                        <i class="fas fa-clock mr-1"></i>Menunggu Review
+                                                    </span>
+                                                @elseif($publication->dosen_status === 'approved')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                        <i class="fas fa-check mr-1"></i>Disetujui Dosen
+                                                    </span>
+                                                @elseif($publication->dosen_status === 'rejected')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                                        <i class="fas fa-times mr-1"></i>Ditolak Dosen
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                                        <i class="fas fa-minus mr-1"></i>Belum Review
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                                                <i class="fas fa-clock mr-1"></i>Menunggu
                                             </span>
-                                        @elseif($publication->dosen_status === 'approved')
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                                <i class="fas fa-check mr-1"></i>Disetujui Dosen
-                                            </span>
-                                        @elseif($publication->dosen_status === 'rejected')
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                                                <i class="fas fa-times mr-1"></i>Ditolak Dosen
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                                                <i class="fas fa-minus mr-1"></i>Belum Review
-                                            </span>
-                                        @endif
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <div class="bg-orange-50 rounded-lg p-4 border border-orange-100 mb-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-900 text-sm">{{ Str::limit($publication->title, 50) }}</h3>
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                <i class="fas fa-user mr-1"></i>{{ $publication->student->name }}
+                                            </p>
+                                            <p class="text-xs text-gray-600">
+                                                <i class="fas fa-tag mr-1"></i>{{ $publication->publicationType->name }}
+                                            </p>
+                                            <div class="mt-2 flex items-center space-x-2">
+                                                <span class="text-xs text-gray-500">Dosen:</span>
+                                                @if($publication->dosen_status === 'pending')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                        <i class="fas fa-clock mr-1"></i>Menunggu Review
+                                                    </span>
+                                                @elseif($publication->dosen_status === 'approved')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                        <i class="fas fa-check mr-1"></i>Disetujui Dosen
+                                                    </span>
+                                                @elseif($publication->dosen_status === 'rejected')
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                                        <i class="fas fa-times mr-1"></i>Ditolak Dosen
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                                        <i class="fas fa-minus mr-1"></i>Belum Review
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            @if($publication->admin_status === 'approved')
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-200 text-orange-900 border border-orange-300">
+                                                    <i class="fas fa-check mr-1"></i>Disetujui
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700 border border-gray-300">
+                                                    <i class="fas fa-times mr-1"></i>Ditolak
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="ml-4">
-                                    @if($publication->admin_status === 'pending')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
-                                            <i class="fas fa-clock mr-1"></i>Menunggu
-                                        </span>
-                                    @elseif($publication->admin_status === 'approved')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-200 text-orange-900 border border-orange-300">
-                                            <i class="fas fa-check mr-1"></i>Disetujui
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700 border border-gray-300">
-                                            <i class="fas fa-times mr-1"></i>Ditolak
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
+                            @endif
                         @empty
                         <div class="text-center py-8">
                             <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100">

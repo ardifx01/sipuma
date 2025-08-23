@@ -105,18 +105,93 @@
                                     <span>Upload: {{ $publications->first()->submission_date->format('d/m/Y H:i') }}</span>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 ml-4">
-                                <a href="{{ route('publications.show', $publications->first()) }}" class="text-green-600 hover:text-green-700" title="Lihat Detail">
+                            <div class="flex items-center space-x-3 ml-4">
+                                <!-- Preview/View -->
+                                <a href="{{ route('publications.show', $publications->first()) }}" 
+                                   class="text-blue-600 hover:text-blue-800 transition-colors duration-200" 
+                                   title="Preview Dokumen">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </a>
-                                <a href="{{ route('publications.download', $publications->first()) }}" class="text-green-600 hover:text-green-700" title="Download">
+                                
+                                <!-- Edit -->
+                                <a href="{{ route('publications.edit', $publications->first()) }}" 
+                                   class="text-orange-600 hover:text-orange-800 transition-colors duration-200" 
+                                   title="Edit Publikasi">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </a>
+                                
+                                <!-- Download Dokumen Publikasi -->
+                                @if($publications->first()->file_path)
+                                <a href="{{ Storage::url($publications->first()->file_path) }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full hover:bg-green-200 transition-colors duration-200" 
+                                   title="Download Dokumen Publikasi">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Dokumen
+                                </a>
+                                @endif
+                                
+                                <!-- Download Surat LoA -->
+                                @if($publications->first()->loa_file_path)
+                                <a href="{{ Storage::url($publications->first()->loa_file_path) }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full hover:bg-purple-200 transition-colors duration-200" 
+                                   title="Download Surat Letter of Acceptance (LoA)">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4"></path>
+                                    </svg>
+                                    Surat LoA
+                                </a>
+                                @endif
+                                
+                                <!-- Download Sertifikat HKI -->
+                                @if($publications->first()->hki_certificate)
+                                <a href="{{ Storage::url($publications->first()->hki_certificate) }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full hover:bg-indigo-200 transition-colors duration-200" 
+                                   title="Download Sertifikat Hak Kekayaan Intelektual (HKI)">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4"></path>
+                                    </svg>
+                                    Sertifikat HKI
+                                </a>
+                                @endif
+                                
+                                <!-- Download PDF Buku -->
+                                @if($publications->first()->book_pdf)
+                                <a href="{{ Storage::url($publications->first()->book_pdf) }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full hover:bg-yellow-200 transition-colors duration-200" 
+                                   title="Download File PDF Buku">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                    PDF Buku
+                                </a>
+                                @endif
+                                
+                                <!-- Delete -->
+                                <form action="{{ route('publications.destroy', $publications->first()) }}" 
+                                      method="POST" 
+                                      class="inline"
+                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus publikasi ini? Tindakan ini tidak dapat dibatalkan.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            class="text-red-600 hover:text-red-800 transition-colors duration-200" 
+                                            title="Hapus Publikasi">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -124,47 +199,157 @@
                 @endif
                 
                 <div class="overflow-x-auto">
-                    <x-dashboard-table :head="'<tr><th>Judul</th><th>Jenis</th><th>Status Admin</th><th>Status Dosen</th><th>Tanggal Submit</th><th>Aksi</th></tr>'">
-                        @foreach($publications as $publication)
-                        <tr class="even:bg-orange-50 odd:bg-white hover:bg-orange-100">
-                            <td>
-                                <div class="font-medium">{{ Str::limit($publication->title, 40) }}</div>
-                                <div class="text-sm text-gray-500">{{ Str::limit($publication->abstract, 60) }}</div>
-                            </td>
-                            <td>
-                                <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name }}</span>
-                            </td>
-                            <td>
-                                @if($publication->admin_status === 'pending')
-                                    <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu</span>
-                                @elseif($publication->admin_status === 'approved')
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui</span>
-                                @else
-                                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($publication->dosen_status === 'pending')
-                                    <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu</span>
-                                @elseif($publication->dosen_status === 'approved')
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui</span>
-                                @elseif($publication->dosen_status === 'rejected')
-                                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak</span>
-                                @else
-                                    <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
-                                @endif
-                            </td>
-                            <td>{{ $publication->submission_date->format('d/m/Y') }}</td>
-                            <td>
-                                <div class="flex items-center space-x-2">
-                                    <a href="{{ route('publications.show', $publication) }}" class="text-orange-600 hover:underline" title="Lihat"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('publications.edit', $publication) }}" class="text-orange-600 hover:underline" title="Edit"><i class="fas fa-edit"></i></a>
-                                    <a href="{{ route('publications.download', $publication) }}" class="text-orange-600 hover:underline" title="Download"><i class="fas fa-download"></i></a>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </x-dashboard-table>
+                    <table class="min-w-full bg-white border border-orange-200 rounded-lg">
+                        <thead class="bg-orange-500 text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider">Judul</th>
+                                <th class="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider">Jenis</th>
+                                <th class="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider">Status Admin</th>
+                                <th class="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider">Status Dosen</th>
+                                <th class="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider">Tanggal Submit</th>
+                                <th class="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($publications as $publication)
+                            <tr class="even:bg-orange-50 odd:bg-white hover:bg-orange-100">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium">{{ Str::limit($publication->title, 40) }}</div>
+                                    <div class="text-sm text-gray-500">{{ Str::limit($publication->abstract, 60) }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="border border-orange-300 text-orange-600 px-2 py-1 rounded text-xs">{{ $publication->publicationType->name }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($publication->admin_status === 'pending')
+                                        <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu</span>
+                                    @elseif($publication->admin_status === 'approved')
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui</span>
+                                    @else
+                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($publication->dosen_status === 'pending')
+                                        <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Menunggu</span>
+                                    @elseif($publication->dosen_status === 'approved')
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Disetujui</span>
+                                    @elseif($publication->dosen_status === 'rejected')
+                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Ditolak</span>
+                                    @else
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $publication->submission_date->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-3">
+                                        <!-- Preview/View -->
+                                        <a href="{{ route('publications.show', $publication) }}" 
+                                           class="text-blue-600 hover:text-blue-800 transition-colors duration-200" 
+                                           title="Preview Dokumen">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </a>
+                                        
+                                        <!-- Edit -->
+                                        <a href="{{ route('publications.edit', $publication) }}" 
+                                           class="text-orange-600 hover:text-orange-800 transition-colors duration-200" 
+                                           title="Edit Publikasi">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </a>
+                                        
+                                        <!-- Update Status - hanya untuk publikasi dengan status LoA -->
+                                        <!-- Update Status - hanya untuk publikasi dengan status LoA -->
+                                        @if($publication->publication_status === 'accepted')
+                                        <a href="{{ route('test.update-status', $publication->id) }}" 
+                                           class="inline-flex items-center px-3 py-1 bg-green-500 text-white text-xs font-medium rounded-full hover:bg-green-600 transition-colors duration-200" 
+                                           title="Update ke Published">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Update
+                                        </a>
+                                        @endif
+                                        
+
+                                        
+                                        <!-- Download Dokumen Publikasi -->
+                                        @if($publication->file_path)
+                                        <a href="{{ Storage::url($publication->file_path) }}" 
+                                           target="_blank"
+                                           class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full hover:bg-green-200 transition-colors duration-200" 
+                                           title="Download Dokumen Publikasi">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            Dokumen
+                                        </a>
+                                        @endif
+                                        
+                                        <!-- Download Surat LoA -->
+                                        @if($publication->loa_file_path)
+                                        <a href="{{ Storage::url($publication->loa_file_path) }}" 
+                                           target="_blank"
+                                           class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full hover:bg-purple-200 transition-colors duration-200" 
+                                           title="Download Surat Letter of Acceptance (LoA)">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4"></path>
+                                            </svg>
+                                            Surat LoA
+                                        </a>
+                                        @endif
+                                        
+                                        <!-- Download Sertifikat HKI -->
+                                        @if($publication->hki_certificate)
+                                        <a href="{{ Storage::url($publication->hki_certificate) }}" 
+                                           target="_blank"
+                                           class="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full hover:bg-indigo-200 transition-colors duration-200" 
+                                           title="Download Sertifikat Hak Kekayaan Intelektual (HKI)">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4"></path>
+                                            </svg>
+                                            Sertifikat HKI
+                                        </a>
+                                        @endif
+                                        
+                                        <!-- Download PDF Buku -->
+                                        @if($publication->book_pdf)
+                                        <a href="{{ Storage::url($publication->book_pdf) }}" 
+                                           target="_blank"
+                                           class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full hover:bg-yellow-200 transition-colors duration-200" 
+                                           title="Download File PDF Buku">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                            </svg>
+                                            PDF Buku
+                                        </a>
+                                        @endif
+                                        
+                                        <!-- Delete -->
+                                        <form action="{{ route('publications.destroy', $publication) }}" 
+                                              method="POST" 
+                                              class="inline"
+                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus publikasi ini? Tindakan ini tidak dapat dibatalkan.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:text-red-800 transition-colors duration-200" 
+                                                    title="Hapus Publikasi">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             @else
                 <div class="text-center py-8">

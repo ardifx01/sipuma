@@ -50,16 +50,6 @@
 
                 <div class="space-y-3">
                     <div class="flex justify-between">
-                        <span class="text-sm text-gray-500">Status Email:</span>
-                        <span class="text-sm font-medium">
-                            @if($user->email_verified_at)
-                                <span class="text-success">✓ Verified</span>
-                            @else
-                                <span class="text-warning">✗ Unverified</span>
-                            @endif
-                        </span>
-                    </div>
-                    <div class="flex justify-between">
                         <span class="text-sm text-gray-500">Tanggal Daftar:</span>
                         <span class="text-sm font-medium">{{ $user->created_at->format('d M Y H:i') }}</span>
                     </div>

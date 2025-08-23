@@ -30,7 +30,7 @@
         <div class="flex justify-end mt-2">
             <a href="{{ route('dashboard.dosen-all-publications') }}" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex items-center text-sm">
                 <i class="fas fa-list mr-2"></i>
-                Publikasi Saya
+                Semua Publikasi Mahasiswa
             </a>
         </div>
 

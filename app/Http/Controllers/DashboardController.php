@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Publication;
-use App\Models\StudentProfile;
-use App\Models\DosenProfile;
 use App\Models\Review;
+use App\Models\StudentProfile;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
@@ -19,7 +18,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
+
         if ($user->hasRole('admin')) {
             return $this->adminDashboard($request);
         } elseif ($user->hasRole('mahasiswa')) {
@@ -27,11 +26,11 @@ class DashboardController extends Controller
         } elseif ($user->hasRole('dosen')) {
             return $this->dosenDashboard();
         }
-        
+
         // Fallback untuk user tanpa role
         return redirect()->route('welcome');
     }
-    
+
     private function adminDashboard(Request $request)
     {
         // Query untuk publikasi yang perlu direview (pending) dan yang sudah approved
@@ -39,11 +38,11 @@ class DashboardController extends Controller
             ->whereIn('admin_status', ['pending', 'approved']);
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $recentQuery->whereHas('student', function($q) use ($search) {
+            $recentQuery->whereHas('student', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhereHas('studentProfile', function($q2) use ($search) {
-                      $q2->where('nim', 'like', "%$search%") ;
-                  });
+                    ->orWhereHas('studentProfile', function ($q2) use ($search) {
+                        $q2->where('nim', 'like', "%$search%");
+                    });
             });
         }
         $data = [
@@ -59,19 +58,20 @@ class DashboardController extends Controller
                 ->latest()
                 ->get(),
         ];
+
         return view('dashboard.admin', $data);
     }
-    
+
     private function mahasiswaDashboard()
     {
         $user = Auth::user();
         $studentProfile = $user->studentProfile;
-        
+
         $publications = Publication::where('student_id', $user->id)
             ->with(['publicationType', 'student', 'student.studentProfile'])
             ->latest()
             ->get();
-            
+
         $data = [
             'totalPublications' => $publications->count(),
             'pendingPublications' => $publications->where('admin_status', 'pending')->count(),
@@ -79,10 +79,10 @@ class DashboardController extends Controller
             'rejectedPublications' => $publications->where('admin_status', 'rejected')->count(),
             'publications' => $publications,
         ];
-        
+
         return view('dashboard.mahasiswa', $data);
     }
-    
+
     private function dosenDashboard()
     {
         $user = Auth::user();
@@ -99,13 +99,13 @@ class DashboardController extends Controller
 
         // Menunggu review dosen (admin sudah approve, dosen belum review) atau admin masih pending
         $pendingReviews = Publication::whereIn('student_id', $students)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('admin_status', 'approved')
-                      ->where('dosen_status', 'pending')
-                      ->orWhere(function($q) {
-                          $q->where('admin_status', 'pending')
+                    ->where('dosen_status', 'pending')
+                    ->orWhere(function ($q) {
+                        $q->where('admin_status', 'pending')
                             ->where('dosen_status', 'pending');
-                      });
+                    });
             })
             ->with(['student', 'student.studentProfile', 'publicationType'])
             ->count();
@@ -136,10 +136,10 @@ class DashboardController extends Controller
 
         // Data lain (untuk tampilan tabel/list)
         $pendingPublications = Publication::whereIn('student_id', $students)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('admin_status', 'approved')
-                      ->where('dosen_status', 'pending')
-                      ->orWhere('admin_status', 'pending');
+                    ->where('dosen_status', 'pending')
+                    ->orWhere('admin_status', 'pending');
             })
             ->with(['student', 'student.studentProfile', 'publicationType'])
             ->latest()
@@ -173,26 +173,27 @@ class DashboardController extends Controller
             ->with(['student', 'publicationType', 'student.studentProfile']);
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->whereHas('student', function($q) use ($search) {
+            $query->whereHas('student', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhereHas('studentProfile', function($q2) use ($search) {
-                      $q2->where('nim', 'like', "%$search%") ;
-                  });
+                    ->orWhereHas('studentProfile', function ($q2) use ($search) {
+                        $q2->where('nim', 'like', "%$search%");
+                    });
             });
         }
         $publications = $query->latest()->paginate(20)->withQueryString();
+
         return view('dashboard.admin-review', compact('publications'));
     }
 
     public function reviewDetail($id)
     {
         $publication = Publication::with([
-            'student', 
-            'publicationType', 
+            'student',
+            'publicationType',
             'student.studentProfile',
-            'reviews'
+            'reviews',
         ])->findOrFail($id);
-        
+
         return view('dashboard.admin-review-detail', compact('publication'));
     }
 
@@ -207,7 +208,7 @@ class DashboardController extends Controller
             'admin_feedback' => $request->feedback,
             'admin_reviewed_at' => now(),
         ]);
-        
+
         return redirect()->route('dashboard.admin-review')
             ->with('success', 'Publikasi berhasil disetujui!');
     }
@@ -221,9 +222,10 @@ class DashboardController extends Controller
         $publication->update([
             'admin_status' => 'rejected',
             'admin_feedback' => $request->feedback,
+            'rejection_reason' => $request->feedback, // Simpan alasan penolakan
             'admin_reviewed_at' => now(),
         ]);
-        
+
         return redirect()->route('dashboard.admin-review')
             ->with('success', 'Publikasi berhasil ditolak!');
     }
@@ -232,20 +234,21 @@ class DashboardController extends Controller
     public function dosenReviewPublications()
     {
         $user = Auth::user();
-        
+
         // Ambil mahasiswa yang dibimbing oleh dosen ini
         $students = StudentProfile::where('supervisor_id', $user->id)->pluck('user_id');
-        
+
         $publications = Publication::whereIn('student_id', $students)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('admin_status', 'approved')
-                      ->where('dosen_status', 'pending')
-                      ->orWhere('admin_status', 'pending');
+                    ->where('dosen_status', 'pending')
+                    ->orWhere('admin_status', 'pending')
+                    ->where('dosen_status', 'pending');
             })
             ->with(['student', 'publicationType', 'student.studentProfile'])
             ->latest()
             ->paginate(20)->withQueryString();
-            
+
         return view('dashboard.dosen-review', compact('publications'));
     }
 
@@ -256,34 +259,31 @@ class DashboardController extends Controller
         $students = StudentProfile::where('supervisor_id', $user->id)->pluck('user_id');
         $publication = Publication::whereIn('student_id', $students)
             ->with([
-                'student', 
-                'publicationType', 
+                'student',
+                'publicationType',
                 'student.studentProfile',
-                'reviews'
+                'reviews',
             ])->findOrFail($id);
+
         return view('dashboard.dosen-review-detail', compact('publication'));
     }
 
     public function dosenApprovePublication(Request $request, $id)
     {
         $user = Auth::user();
-        
+
         // Pastikan dosen hanya bisa review publikasi mahasiswa bimbingannya
         $students = StudentProfile::where('supervisor_id', $user->id)->pluck('user_id');
-        
+
         $publication = Publication::whereIn('student_id', $students)
-            ->where(function($query) {
-                $query->where('admin_status', 'approved')
-                      ->where('dosen_status', 'pending')
-                      ->orWhere('admin_status', 'pending');
-            })
+            ->where('dosen_status', 'pending')
             ->findOrFail($id);
-            
+
         $publication->update([
             'dosen_status' => 'approved',
             'dosen_feedback' => $request->feedback,
         ]);
-        
+
         return redirect()->route('dashboard.dosen-review')
             ->with('success', 'Publikasi berhasil disetujui!');
     }
@@ -291,24 +291,20 @@ class DashboardController extends Controller
     public function dosenRejectPublication(Request $request, $id)
     {
         $user = Auth::user();
-        
+
         // Pastikan dosen hanya bisa review publikasi mahasiswa bimbingannya
         $students = StudentProfile::where('supervisor_id', $user->id)->pluck('user_id');
-        
+
         $publication = Publication::whereIn('student_id', $students)
-            ->where(function($query) {
-                $query->where('admin_status', 'approved')
-                      ->where('dosen_status', 'pending')
-                      ->orWhere('admin_status', 'pending');
-            })
+            ->where('dosen_status', 'pending')
             ->findOrFail($id);
-            
+
         $publication->update([
             'dosen_status' => 'rejected',
             'dosen_feedback' => $request->feedback,
-            'admin_status' => 'rejected', // Otomatis reject admin jika masih pending
+            'rejection_reason' => $request->feedback, // Simpan alasan penolakan
         ]);
-        
+
         return redirect()->route('dashboard.dosen-review')
             ->with('success', 'Publikasi berhasil ditolak!');
     }
@@ -317,65 +313,65 @@ class DashboardController extends Controller
     public function manageStudents(Request $request)
     {
         $user = Auth::user();
-        
+
         if ($user->hasRole('dosen')) {
             // Dosen melihat mahasiswa bimbingannya
             $query = StudentProfile::where('supervisor_id', $user->id)
                 ->with(['user', 'publications']);
-                
+
             // Search functionality
             if ($request->filled('search')) {
                 $search = $request->input('search');
-                $query->whereHas('user', function($q) use ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%$search%")
-                      ->orWhere('email', 'like', "%$search%");
+                        ->orWhere('email', 'like', "%$search%");
                 })->orWhere('nim', 'like', "%$search%");
             }
-            
+
             $students = $query->paginate(15)->withQueryString();
-            
+
             // If AJAX request, return only the table content
             if ($request->has('ajax')) {
                 return view('dashboard.manage-students', compact('students'))->render();
             }
-                
+
             return view('dashboard.manage-students', compact('students'));
         } elseif ($user->hasRole('admin')) {
             // Admin melihat semua mahasiswa dan bisa assign dosen
             $query = StudentProfile::with(['user', 'supervisor']);
-            
+
             // Search functionality
             if ($request->filled('search')) {
                 $search = $request->input('search');
-                $query->whereHas('user', function($q) use ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%$search%")
-                      ->orWhere('email', 'like', "%$search%");
+                        ->orWhere('email', 'like', "%$search%");
                 })->orWhere('nim', 'like', "%$search%");
             }
-            
+
             $students = $query->paginate(20)->withQueryString();
             $dosen = User::role('dosen')->get();
-            
+
             // If AJAX request, return only the table content
             if ($request->has('ajax')) {
                 return view('dashboard.manage-students', compact('students', 'dosen'))->render();
             }
-                
+
             return view('dashboard.manage-students', compact('students', 'dosen'));
         }
-        
+
         return redirect()->route('dashboard');
     }
 
     public function assignSupervisor(Request $request, $studentId)
     {
         $request->validate([
-            'supervisor_id' => 'required|exists:users,id'
+            'supervisor_id' => 'required|exists:users,id',
         ]);
-        
+
         $studentProfile = StudentProfile::where('user_id', $studentId)->firstOrFail();
         $studentProfile->update(['supervisor_id' => $request->supervisor_id]);
-        
+
         return redirect()->route('dashboard.manage-students')
             ->with('success', 'Dosen pembimbing berhasil diassign!');
     }
@@ -384,7 +380,7 @@ class DashboardController extends Controller
     {
         $studentProfile = StudentProfile::where('user_id', $studentId)->firstOrFail();
         $studentProfile->update(['supervisor_id' => null]);
-        
+
         return redirect()->route('dashboard.manage-students')
             ->with('success', 'Dosen pembimbing berhasil dihapus!');
     }
@@ -396,15 +392,16 @@ class DashboardController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->whereHas('student', function($q) use ($search) {
+            $query->whereHas('student', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhereHas('studentProfile', function($q2) use ($search) {
-                      $q2->where('nim', 'like', "%$search%") ;
-                  });
+                    ->orWhereHas('studentProfile', function ($q2) use ($search) {
+                        $q2->where('nim', 'like', "%$search%");
+                    });
             });
         }
 
         $publications = $query->orderByDesc('admin_reviewed_at')->paginate(20)->withQueryString();
+
         return view('dashboard.admin-approved-publications', compact('publications'));
     }
 
@@ -419,15 +416,15 @@ class DashboardController extends Controller
             $query->where('admin_status', 'pending');
         }
         if ($search) {
-            $query->whereHas('student', function($q) use ($search) {
+            $query->whereHas('student', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhereHas('studentProfile', function($q2) use ($search) {
-                      $q2->where('nim', 'like', "%$search%") ;
-                  });
+                    ->orWhereHas('studentProfile', function ($q2) use ($search) {
+                        $q2->where('nim', 'like', "%$search%");
+                    });
             });
         }
         $publications = $query->orderByDesc('admin_reviewed_at')->limit(20)->get();
-        $result = $publications->map(function($pub) {
+        $result = $publications->map(function ($pub) {
             return [
                 'id' => $pub->id,
                 'title' => $pub->title,
@@ -440,6 +437,7 @@ class DashboardController extends Controller
                 'download_url' => $pub->file_path ? route('publications.download', $pub->id) : null,
             ];
         });
+
         return response()->json(['data' => $result]);
     }
 
@@ -451,8 +449,8 @@ class DashboardController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('title', 'like', "%$search%")
-                  ->orWhere('keywords', 'like', "%$search%")
-                  ->orWhere('abstract', 'like', "%$search%") ;
+                ->orWhere('keywords', 'like', "%$search%")
+                ->orWhere('abstract', 'like', "%$search%");
         }
         if ($request->input('sort') === 'type') {
             $query->orderBy('publication_type_id')->orderByDesc('created_at');
@@ -460,6 +458,7 @@ class DashboardController extends Controller
             $query->orderByDesc('created_at');
         }
         $publications = $query->paginate(20)->withQueryString();
+
         return view('dashboard.student-publications', compact('user', 'publications'));
     }
 
@@ -471,15 +470,16 @@ class DashboardController extends Controller
             ->whereIn('student_id', $students);
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%$search%")
-                  ->orWhereHas('student', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%$search%")
-                         ->orWhere('email', 'like', "%$search%") ;
-                  });
+                    ->orWhereHas('student', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%$search%")
+                            ->orWhere('email', 'like', "%$search%");
+                    });
             });
         }
         $publications = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
+
         return view('dashboard.dosen-all-publications', compact('publications'));
     }
 
@@ -488,15 +488,16 @@ class DashboardController extends Controller
         $query = Publication::with(['student', 'publicationType', 'student.studentProfile']);
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%$search%")
-                  ->orWhereHas('student', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%$search%")
-                         ->orWhere('email', 'like', "%$search%") ;
-                  });
+                    ->orWhereHas('student', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%$search%")
+                            ->orWhere('email', 'like', "%$search%");
+                    });
             });
         }
         $publications = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
+
         return view('dashboard.admin-all-publications', compact('publications'));
     }
 }

@@ -82,28 +82,6 @@
                     <p class="text-xl font-bold text-gray-900 leading-relaxed">{{ $publication->title }}</p>
                 </div>
 
-                <!-- Abstract dengan styling khusus -->
-                @if($publication->abstract)
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Abstract</label>
-                    <p class="text-gray-800 leading-relaxed text-base">{{ $publication->abstract }}</p>
-                </div>
-                @endif
-
-                <!-- Keywords dengan tag styling -->
-                @if($publication->keywords)
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Keywords</label>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach(explode(',', $publication->keywords) as $keyword)
-                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium border border-gray-200">
-                                {{ trim($keyword) }}
-                            </span>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
                 <!-- Informasi Umum dengan grid yang lebih menarik -->
                 <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                     <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Informasi Umum</h3>
@@ -307,41 +285,68 @@
         </div>
 
         <!-- File Upload -->
+        @if($publication->file_path || $publication->loa_file_path)
+<div class="bg-white rounded-xl shadow border border-orange-200 overflow-hidden mt-8">
+    <div class="bg-orange-100 px-6 py-4">
+        <h2 class="text-lg font-bold text-orange-600 flex items-center">
+            <i class="fas fa-file-upload mr-2"></i>
+            File Publikasi & LoA
+        </h2>
+    </div>
+    <div class="p-6 space-y-4">
         @if($publication->file_path)
-        <div class="bg-white rounded-xl shadow border border-orange-200 overflow-hidden">
-            <div class="bg-orange-100 px-6 py-4">
-                <h2 class="text-lg font-bold text-orange-600 flex items-center">
-                    <i class="fas fa-file-upload mr-2"></i>
-                    File Publikasi
-                </h2>
-            </div>
-            <div class="p-6">
-                <div class="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-orange-200 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-file-pdf text-orange-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">File Publikasi</p>
-                            <p class="text-lg font-semibold text-gray-900">{{ basename($publication->file_path) }}</p>
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <a href="{{ route('publications.download', $publication->id) }}" 
-                           class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-all border border-orange-600">
-                            <i class="fas fa-download mr-1"></i>
-                            Download
-                        </a>
-                        <a href="{{ asset('storage/' . $publication->file_path) }}" target="_blank"
-                           class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all border border-gray-300">
-                            <i class="fas fa-eye mr-1"></i>
-                            Preview
-                        </a>
-                    </div>
+        <div class="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-orange-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-pdf text-orange-600 text-lg"></i>
                 </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500">File Publikasi</p>
+                    <p class="text-base font-semibold text-gray-900">{{ basename($publication->file_path) }}</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{{ route('publications.download', $publication->id) }}"
+                   class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-orange-600 text-sm">
+                    <i class="fas fa-download mr-1"></i>
+                    Download
+                </a>
+                <a href="{{ asset('storage/' . $publication->file_path) }}" target="_blank"
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 px-3 rounded-lg transition-all border border-gray-300 text-sm">
+                    <i class="fas fa-eye mr-1"></i>
+                    Preview
+                </a>
             </div>
         </div>
         @endif
+        @if($publication->loa_file_path)
+        <div class="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-orange-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-signature text-orange-600 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500">File LoA</p>
+                    <p class="text-base font-semibold text-gray-900">{{ basename($publication->loa_file_path) }}</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{{ asset('storage/' . $publication->loa_file_path) }}" download
+                   class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all border border-orange-600 text-sm">
+                    <i class="fas fa-download mr-1"></i>
+                    Download
+                </a>
+                <a href="{{ asset('storage/' . $publication->loa_file_path) }}" target="_blank"
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 px-3 rounded-lg transition-all border border-gray-300 text-sm">
+                    <i class="fas fa-eye mr-1"></i>
+                    Preview
+                </a>
+            </div>
+        </div>
+        @endif
+    </div>
+</div>
+@endif
 
         <!-- Review Actions -->
         @if($publication->dosen_status === 'approved' && $publication->admin_status === 'pending')
